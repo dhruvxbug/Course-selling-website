@@ -1,9 +1,12 @@
-const {Router} = require('express');
-const CourseRouter = Router();
-const {CourseModel,PurchaseModel} = require("../db.js")
-const {UserMiddleware} = require("../middleware/user.js")
+import {Router} from "express"
+import  type { Request,Response } from "express";
+import { CourseModel,PurchaseModel } from "../db.js";
+import { UserMiddleware } from "../middleware/userMiddleware.js";
 
-CourseRouter.post("/purchase",UserMiddleware, async function(req,res){
+const CourseRouter = Router();
+
+
+CourseRouter.post("/purchase",UserMiddleware, async function(req: Request,res: Response){
     const userId = req.userId;
     const {courseId} = req.body;
 
@@ -18,13 +21,11 @@ CourseRouter.post("/purchase",UserMiddleware, async function(req,res){
     })
 })
 
-CourseRouter.get("/preview", async function(req,res){
+CourseRouter.get("/preview", async function(req: Request,res: Response){
     const courses = await CourseModel.find({});
     res.json({
         courses
     })
 })
 
-module.exports={
-    CourseRouter: CourseRouter
-}
+export{ CourseRouter }

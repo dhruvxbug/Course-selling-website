@@ -1,7 +1,9 @@
-require("dotenv").config();
-const{jwt} =require("../config.js");
+import type { NextFunction } from "express";
 
-function UserMiddleware(req, res, next){
+require("dotenv").config();
+import jwt, {JwtPayload} from "../config.ts";
+
+function UserMiddleware(req: Request, res: Response, next: NextFunction){
     const token = req.headers.token;
         console.log(token);
         const userDetails = jwt.verify(token, process.env.JWT_USER_SECRET);

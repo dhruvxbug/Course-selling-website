@@ -1,9 +1,9 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+import mongoose, {Schema, model} from "mongoose";
+
 const ObjectId = Schema.ObjectId;
 
 const UserSchema = new Schema({
-    Email: {type: String, unique: true},
+    Email: {type: String, unique: true, required: true},
     FirstName: String,
     LastName: String,
     Password: String
@@ -29,10 +29,10 @@ const PurchaseSchema = new Schema({
     CourseId: ObjectId
 })
 
-const UserModel = mongoose.model("user", UserSchema);
-const AdminModel = mongoose.model("admin", AdminSchema);
-const CourseModel = mongoose.model("course", CourseSchema);
-const PurchaseModel = mongoose.model("purchase", PurchaseSchema);
+const UserModel = model("user", UserSchema);
+const AdminModel = model("admin", AdminSchema);
+const CourseModel = model("course", CourseSchema);
+const PurchaseModel = model("purchase", PurchaseSchema);
 
 module.exports = {
    UserModel,

@@ -1,11 +1,12 @@
-const {Router} = require("express");
+import type {Request, Response } from "express"
+import {Router } from "express"
 const UserRouter = Router();
-const {UserModel,CourseModel, PurchaseModel} =require("../db.js");
-const {jwt,z,bcrypt} = require("../config.js");
-const {UserMiddleware} = require("../middleware/user.js")
+import {UserModel,CourseModel, PurchaseModel} from "../db.js"
+import  {jwt,z,bcrypt} from "../config.js";
+import {UserMiddleware} from "../middleware/user.js";
 require("dotenv").config();
 
-UserRouter.post("/signup", async function (req,res){
+UserRouter.post("/signup",async function(req: Request,res: Response){
      try{
     const requiredbody = z.object ({
         email : z.string().min(3).max(40).email(),
@@ -17,14 +18,13 @@ UserRouter.post("/signup", async function (req,res){
     const parsedData = requiredbody.safeParse(req.body);
 
     if(!parsedData.success){
-        res.json({
-            message: "Invalid format ",
+        return res.status(400).json({
+            message: "Invalid format",
             error: parsedData.error
         })
-        return
     }
 
-    const email = req.body.email;
+    const email  = req.body.email;
     const password = req.body.password;
     const Firstname = req.body.Firstname;
     const Lastname = req.body.Lastname
@@ -40,11 +40,15 @@ UserRouter.post("/signup", async function (req,res){
         message:"user created"
     })
     }catch(e){
-        console.log(e);
-        res.json({
-            message: "Some error occured ",
+        if(e instanceof Error){
+        res.status(500).json({ 
             error: e.message
-        })
+        });
+       } else {
+        res.status(500).json({
+            error: String(e)
+        });
+       }
     }
 });
 
@@ -58,14 +62,14 @@ UserRouter.post("/signin", async function(req,res){
     });
 
     if(!user){
-        res.json({
+        return res.json({
             message:"This user doesn't exist"
         })
     }
     
-    const match = await bcrypt.compare(password, user.Password);
+    const match = await bcrypt.compare(password, user.Password as string);
     if(match){
-        const token = jwt.sign({id: user._id}, process.env.JWT_USER_SECRET);
+        const token = jwt.sign({id: user._id}, process.env.JWT_USER_SECRET as string);
         console.log(jwt);
         res.json({
             token: token
@@ -76,14 +80,21 @@ UserRouter.post("/signin", async function(req,res){
         })
     }
    } catch(e){
-      res.status(401).json({
-        message: "Unauthorized",
-        error: e.message
-      })
+       if(e instanceof Error){
+        res.status(500).json({ 
+            message: "Unauthorized",
+            error: e.message
+        });
+       } else {
+        res.status(500).json({
+            message: "Unauthorized",
+            error: String(e)
+        });
+       }
    }
 });
 
-UserRouter.get("/purchases",UserMiddleware,  async function(req,res){
+UserRouter.get("/purchases",UserMiddleware,  async function(req: Request,res: Response){
     const userId = req.userId;
 
     const purchases = await PurchaseModel.find({
@@ -98,6 +109,5 @@ UserRouter.get("/purchases",UserMiddleware,  async function(req,res){
     })
 });
 
-module.exports={
-    UserRouter: UserRouter
-}
+
+export{ UserRouter }

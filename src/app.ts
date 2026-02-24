@@ -1,4 +1,5 @@
-const express = require("express");
+import express = require("express");
+import type { Request, Response, NextFunction } from "express";
 const mongoose = require("mongoose");
 require("dotenv").config();
 
@@ -7,7 +8,7 @@ const {CourseRouter} = require("./routes/course")
 const {AdminRouter} = require("./routes/admin")
 
 const app = express();
-app.use(express.json());
+app.use(express.json({limit: "200kb", strict: true}));
 
 app.use("/user", UserRouter); 
 app.use("/admin", AdminRouter);
