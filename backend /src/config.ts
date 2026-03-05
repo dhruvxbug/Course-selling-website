@@ -1,6 +1,6 @@
-import jwt = require("jsonwebtoken");
-import bcrypt = require("bcrypt");
-import z = require("zod");
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import z from "zod";
 
 export const JWT_USER_SECRET : string | undefined = process.env.JWT_USER_SECRET;
 export const JWT_ADMIN_SECRET : string | undefined = process.env.JWT_ADMIN_SECRET;

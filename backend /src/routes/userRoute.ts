@@ -3,8 +3,17 @@ import {Router } from "express"
 const UserRouter = Router();
 import {UserModel,CourseModel, PurchaseModel} from "../db.js"
 import  {jwt,z,bcrypt} from "../config.js";
-import {UserMiddleware} from "../middleware/user.js";
+import {UserMiddleware} from "../middleware/userMiddleware.js";
 require("dotenv").config();
+
+declare global{
+    namespace Express{
+        interface Request{ 
+            userId: string;
+            adminId: string;
+        }
+    }
+}
 
 UserRouter.post("/signup",async function(req: Request,res: Response){
      try{

@@ -1,4 +1,4 @@
-import mongoose, {Schema, model} from "mongoose";
+import mongoose, { Schema, model} from "mongoose";
 
 const ObjectId = Schema.ObjectId;
 
@@ -21,22 +21,15 @@ const CourseSchema = new Schema({
     Description: String,
     Price: Number,
     ImgUrl: String,
-    AdminId: ObjectId
+    AdminId: {type: Schema.Types.ObjectId, ref: 'admin', required: true}
 });
 
 const PurchaseSchema = new Schema({
-    UserId: ObjectId,
-    CourseId: ObjectId
+    UserId: {type: Schema.Types.ObjectId, ref: 'user', required: true},
+    CourseId: {type: Schema.Types.ObjectId, ref: 'course', required: true}
 })
 
-const UserModel = model("user", UserSchema);
-const AdminModel = model("admin", AdminSchema);
-const CourseModel = model("course", CourseSchema);
-const PurchaseModel = model("purchase", PurchaseSchema);
-
-module.exports = {
-   UserModel,
-   AdminModel,
-   CourseModel,
-   PurchaseModel   
-}
+export const UserModel = model("user", UserSchema);
+export const AdminModel = model("admin", AdminSchema);
+export const CourseModel = model("course", CourseSchema);
+export const PurchaseModel = model("purchase", PurchaseSchema);

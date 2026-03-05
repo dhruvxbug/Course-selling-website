@@ -1,11 +1,20 @@
-const {Router} = require("express");
+import {Router} from "express";
 const AdminRouter = Router();
-const {AdminModel, CourseModel} = require("../../db.js")
-const {jwt,z,bcrypt} = require("../config.js");
-const {AdminMiddleware} = require("../middleware/admin")
+import type {Request ,Response, NextFunction} from "express"
+import {AdminModel, CourseModel} from "../db.js";
+import {jwt,z,bcrypt} from "../config.js";
+import {AdminMiddleware} from "../middleware/adminMiddleware.js";
 
+declare global{
+    namespace Expess{
+        interface Request{ 
+            userId: string;
+            adminId: string;
+        }
+    }
+}
 
-AdminRouter.post("/signup", async function (req,res){
+AdminRouter.post("/signup", async function (req: Request,res: Response){
     try{
         const requiredbody = z.object ({
         email : z.string().min(3).max(40).email(),
@@ -39,14 +48,20 @@ AdminRouter.post("/signup", async function (req,res){
         message: "Admin sign up successful"
        })
     }catch(e){
-        res.status(401).json({
+        if(e instanceof Error){
+           res.status(401).json({
             message: "Unauthorized",
-        error: e.message
-        })
+             error: e.message
+           }) 
+        } else{
+            res.status(401).json({
+                error: String(e)
+            })
+        }
     }
 })
 
-AdminRouter.post("/signin", async function(req,res){
+AdminRouter.post("/signin", async function(req: Request,res: Response){
     try{
     const email = req.body.email;
     const password = req.body.password;
@@ -61,9 +76,9 @@ AdminRouter.post("/signin", async function(req,res){
         })
     }
     
-    const match = await bcrypt.compare(password, admin.Password);
+    const match = await bcrypt.compare(password, admin?.Password as string);
     if(match){
-        const token = jwt.sign({id: admin._id}, process.env.JWT_ADMIN_SECRET);
+        const token = jwt.sign({id: admin?._id}, process.env.JWT_ADMIN_SECRET as string);
         res.json({
             token: token
         })
@@ -73,14 +88,20 @@ AdminRouter.post("/signin", async function(req,res){
         })
     }
     }catch(e){
-        res.status(401).json({
+       if(e instanceof Error){
+           res.status(401).json({
             message: "Unauthorized",
-            error: e.message
-        })
+             error: e.message
+           }) 
+        } else{
+            res.status(401).json({
+                error: String(e)
+            })
+        }
     }
 })
 
-AdminRouter.post("/course", AdminMiddleware,async function(req,res){
+AdminRouter.post("/course", AdminMiddleware,async function(req: Request,res: Response){
     const adminId = req.adminId;
 
     const {title,description,price,Imgurl} = req.body;
@@ -97,7 +118,7 @@ AdminRouter.post("/course", AdminMiddleware,async function(req,res){
      })
 })
 
-AdminRouter.put("/course", AdminMiddleware, async function(req, res){
+AdminRouter.put("/course", AdminMiddleware, async function(req: Request, res: Response){
      const adminId = req.adminId;
 
      const {title,description,price,Imgurl, courseId} = req.body;
@@ -112,14 +133,14 @@ AdminRouter.put("/course", AdminMiddleware, async function(req, res){
      })
      res.json({
         message: "Course Details updated",
-        CourseId: course._id
+        CourseId: courseId
      })
 })
 
 AdminRouter.get("/course/bulk",AdminMiddleware, async function(req, res){
      const adminid = req.adminId;
 
-     const courses = await CourseModel.find({AdminId: adminId});
+     const courses = await CourseModel.find({AdminId: adminid});
      res.json({
          message: "courses found",
          courses
@@ -127,6 +148,4 @@ AdminRouter.get("/course/bulk",AdminMiddleware, async function(req, res){
 
 })
 
-module.exports={
-    AdminRouter: AdminRouter
-}
+export {AdminRouter}
